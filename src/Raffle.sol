@@ -57,7 +57,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     uint256 private immutable i_subscriptionId;
     uint32 private immutable i_callbackGasLimit;
     address payable[] private s_players;
-    uint256 private s_lastTimeStamp;
+    uint256 private s_lastTimestamp;
     address private s_recentWinner;
     RaffleState private s_raffleState;
 
@@ -80,7 +80,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         i_subscriptionId = subscriptionId;
         i_callbackGasLimit = callbackGasLimit;
 
-        s_lastTimeStamp = block.timestamp;
+        s_lastTimestamp = block.timestamp;
         s_raffleState = RaffleState.OPEN;
     }
 
@@ -114,7 +114,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         bytes memory /* checkData */
     ) public view returns (bool upkeepNeeded, bytes memory /*performData */) {
         // check to see if enough time has passed
-        bool timeHasPassed = (block.timestamp - s_lastTimeStamp >= i_interval);
+        bool timeHasPassed = (block.timestamp - s_lastTimestamp >= i_interval);
         bool isOpen = s_raffleState == RaffleState.OPEN;
         bool hasBalance = address(this).balance > 0;
         bool hasPlayers = s_players.length > 0;
@@ -161,7 +161,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
         s_raffleState = RaffleState.OPEN;
         s_players = new address payable[](0);
-        s_lastTimeStamp = block.timestamp;
+        s_lastTimestamp = block.timestamp;
 
         (bool success, ) = recentWinner.call{value: address(this).balance}("");
 
@@ -183,5 +183,13 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
     function getPlayer(uint256 indexOfPlayer) external view returns (address) {
         return s_players[indexOfPlayer];
+    }
+
+    function getLastTimestamp() external view returns (uint256) {
+        return s_lastTimestamp;
+    }
+
+    function getRecentWinner() external view returns (address) {
+        return s_recentWinner;
     }
 }
