@@ -7,11 +7,13 @@ import {HelperConfig} from "./HelperConfig.s.sol";
 import {CreateSubscription, FundSubscription, AddConsumer} from "script/Interactions.s.sol";
 
 contract DeployRaffle is Script {
-    function run() public {}
+    function run() public {
+        deployContract();
+    }
 
     function deployContract() public returns (Raffle, HelperConfig) {
         HelperConfig helperConfig = new HelperConfig();
-        HelperConfig.NetWorkConfig memory config = helperConfig.getConfig();
+        HelperConfig.NetworkConfig memory config = helperConfig.getConfig();
 
         if (config.subscriptionId == 0) {
             // Create subscription
@@ -27,6 +29,8 @@ contract DeployRaffle is Script {
                 config.link,
                 config.account
             );
+
+            helperConfig.setConfig(block.chainid, config);
         }
 
         vm.startBroadcast(config.account);

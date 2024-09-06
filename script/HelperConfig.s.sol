@@ -19,7 +19,7 @@ abstract contract CodeConstants {
 contract HelperConfig is Script, CodeConstants {
     error HelperConfig__InvalidChainId();
 
-    struct NetWorkConfig {
+    struct NetworkConfig {
         uint256 entranceFee;
         uint256 interval;
         address vrfCoordinator;
@@ -30,16 +30,27 @@ contract HelperConfig is Script, CodeConstants {
         address account;
     }
 
-    NetWorkConfig public localNetworkConfig;
-    mapping(uint256 chainId => NetWorkConfig) public networkConfigs;
+    NetworkConfig public localNetworkConfig;
+    mapping(uint256 chainId => NetworkConfig) public networkConfigs;
 
     constructor() {
         networkConfigs[ETH_SEPOLIA_CHAIN_ID] = getEthSepoliaConfig();
     }
 
+    function getConfig() public returns (NetworkConfig memory) {
+        return getConfigByChainId(block.chainid);
+    }
+
+    function setConfig(
+        uint256 chainId,
+        NetworkConfig memory networkConfig
+    ) public {
+        networkConfigs[chainId] = networkConfig;
+    }
+
     function getConfigByChainId(
         uint256 chainId
-    ) public returns (NetWorkConfig memory) {
+    ) public returns (NetworkConfig memory) {
         if (networkConfigs[chainId].vrfCoordinator != address(0)) {
             return networkConfigs[chainId];
         } else if (chainId == LOCAL_CHAIN_ID) {
@@ -49,13 +60,9 @@ contract HelperConfig is Script, CodeConstants {
         }
     }
 
-    function getConfig() public returns (NetWorkConfig memory) {
-        return getConfigByChainId(block.chainid);
-    }
-
-    function getEthSepoliaConfig() public pure returns (NetWorkConfig memory) {
+    function getEthSepoliaConfig() public pure returns (NetworkConfig memory) {
         return
-            NetWorkConfig({
+            NetworkConfig({
                 entranceFee: 0.01 ether, // 1e16 wei
                 interval: 30, // 30 seconds
                 vrfCoordinator: 0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B,
@@ -67,7 +74,7 @@ contract HelperConfig is Script, CodeConstants {
             });
     }
 
-    function getOrCreateEthAnvilConfig() public returns (NetWorkConfig memory) {
+    function getOrCreateEthAnvilConfig() public returns (NetworkConfig memory) {
         if (localNetworkConfig.vrfCoordinator != address(0)) {
             return localNetworkConfig;
         }
@@ -82,7 +89,7 @@ contract HelperConfig is Script, CodeConstants {
         LinkToken linkToken = new LinkToken();
         vm.stopBroadcast();
 
-        localNetworkConfig = NetWorkConfig({
+        localNetworkConfig = NetworkConfig({
             entranceFee: 0.01 ether, // 1e16 wei
             interval: 30, // 30 seconds
             vrfCoordinator: address(vrfCoordinatorMock),
@@ -90,7 +97,7 @@ contract HelperConfig is Script, CodeConstants {
             callbackGasLimit: 500000, // 500,000 gas
             subscriptionId: 0,
             link: address(linkToken),
-            account: 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38 // DEFAULT_SENDER from Base.sol
+            account: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 // Anvil_0 account
         });
 
         return localNetworkConfig;

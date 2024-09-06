@@ -88,10 +88,15 @@ contract FundSubscription is Script, CodeConstants {
 contract AddConsumer is Script {
     function addConsumerUsingConfig(address mostRecentlyDeployed) public {
         HelperConfig helperConfig = new HelperConfig();
-        uint256 subId = helperConfig.getConfig().subscriptionId;
+        uint256 subscriptionId = helperConfig.getConfig().subscriptionId;
         address vrfCoordinator = helperConfig.getConfig().vrfCoordinator;
         address account = helperConfig.getConfig().account;
-        addConsumer(mostRecentlyDeployed, vrfCoordinator, subId, account);
+        addConsumer(
+            mostRecentlyDeployed,
+            vrfCoordinator,
+            subscriptionId,
+            account
+        );
     }
 
     function addConsumer(
