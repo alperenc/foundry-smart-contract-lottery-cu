@@ -7,6 +7,8 @@ install:
 
 update:; forge update
 
+clean:; forge clean
+
 build:; forge build
 
 test:; forge test -vvvv
